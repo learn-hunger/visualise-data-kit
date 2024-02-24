@@ -1,0 +1,28 @@
+{
+  "name": "tensorflowjs_canvas",
+  "version": "1.0.0",
+  "description": "A package for visulisation ,especially for landmarks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JhansiPyla28/Tensorflowjs_canvas.git"
+  },
+  "keywords": [
+    "tensorflowjs",
+    "tensorflow",
+    "canvas",
+    "visualisation",
+    "visualization",
+    "landmarks",
+    "skelton"
+  ],
+  "author": "jhansi Pyla , Nagendra dharmireddi (pvscreations)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JhansiPyla28/Tensorflowjs_canvas/issues"
+  },
+  "homepage": "https://github.com/JhansiPyla28/Tensorflowjs_canvas#readme"
+}
