@@ -4,7 +4,8 @@
   "description": "A package for visulisation ,especially for landmarks",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p ./tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,9 @@
   "bugs": {
     "url": "https://github.com/JhansiPyla28/Tensorflowjs_canvas/issues"
   },
-  "homepage": "https://github.com/JhansiPyla28/Tensorflowjs_canvas#readme"
+  "homepage": "https://github.com/JhansiPyla28/Tensorflowjs_canvas#readme",
+  "dependencies": {
+    "tsc-node": "^0.0.3",
+    "typescript": "^5.3.3"
+  }
 }
