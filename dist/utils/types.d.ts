@@ -6,7 +6,7 @@ export interface ICoordinates {
     z?: number;
 }
 export declare namespace NCanvas {
-    type TDraw = ICommon | IBuiltIn;
+    type TDraw = ICustom | IBuiltIn;
     interface ICustom extends ICommon {
         connections: number[][];
         metric: number;

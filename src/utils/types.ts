@@ -29,7 +29,7 @@ export interface ICoordinates {
 //     metric?:number,
 // }
 export namespace NCanvas {
-    export type TDraw = ICommon | IBuiltIn;
+    export type TDraw = ICustom | IBuiltIn;
 
     export interface ICustom extends ICommon {
         connections: number[][];
