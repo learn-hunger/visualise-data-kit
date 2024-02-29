@@ -1,4 +1,4 @@
-import { Canvas as BluePrintCanvas } from "./blueprints/canvas";
+import { Canvas as BluePrintCanvas } from "./blueprints/canvas/canvas";
 export var visualisation;
 (function (visualisation) {
     visualisation.Canvas = BluePrintCanvas;

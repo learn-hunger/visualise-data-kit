@@ -1,0 +1,1 @@
+{"version":3,"file":"types.js","sourceRoot":"","sources":["../../../../src/utils/types/canvas/types.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,gBAAgB,EAAyB,MAAM,kCAAkC,CAAC;AAqG3F,MAAM,OAAgB,OAAO;IAIzB,YAAY,aAAgC;QACxC,IAAI,CAAC,aAAa,GAAG,aAAa,CAAC;QACnC,IAAI,CAAC,aAAa,GAAG,aAAa,CAAC,UAAU,CAAC,IAAI,CAAE,CAAC;QACrD,IAAI,CAAC,YAAY,GAAC,EAAC,GAAG,gBAAgB,EAAC,CAAC;IAC5C,CAAC;CAKJ"}

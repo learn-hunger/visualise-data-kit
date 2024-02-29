@@ -1,20 +1,17 @@
-export var NDetectors;
-(function (NDetectors) {
-    /**
-     * Ensure the below enums values are not same
-     */
-    let ETensorflow;
-    (function (ETensorflow) {
-        ETensorflow["POSE"] = "POSE";
-        ETensorflow["HAND"] = "HAND";
-    })(ETensorflow = NDetectors.ETensorflow || (NDetectors.ETensorflow = {}));
-    let EFaceApi;
-    (function (EFaceApi) {
-        // POSE="FACEAPI_POSE"
-    })(EFaceApi = NDetectors.EFaceApi || (NDetectors.EFaceApi = {}));
-})(NDetectors || (NDetectors = {}));
+/**
+ * Ensure the below enums values are not same
+ */
+export var ETensorflow;
+(function (ETensorflow) {
+    ETensorflow["POSE"] = "POSE";
+    ETensorflow["HAND"] = "HAND";
+})(ETensorflow || (ETensorflow = {}));
+export var EFaceApi;
+(function (EFaceApi) {
+    // POSE="FACEAPI_POSE"
+})(EFaceApi || (EFaceApi = {}));
 export const C_DETECTORS_DATA = {
-    [NDetectors.ETensorflow.POSE]: {
+    [ETensorflow.POSE]: {
         connections: [
             [8, 6], [6, 5], [5, 4], [4, 0], [0, 1],
             [1, 2], [2, 3], [3, 7], [10, 9],
@@ -24,12 +21,12 @@ export const C_DETECTORS_DATA = {
             [19, 15], [12, 24], [11, 13], [24, 26],
             [23, 25], [26, 28], [25, 27], [28, 30],
             [28, 32], [30, 32], [27, 31], [27, 29],
-            [29, 31], [11, 23], [23, 25], [24, 23],
+            [29, 31], [11, 23], [23, 25], [24, 23]
         ],
         metric: 1,
-        style: { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } }
+        style: { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } },
     },
-    [NDetectors.ETensorflow.HAND]: {
+    [ETensorflow.HAND]: {
         connections: [
             [0, 1], [1, 2], [2, 3], [3, 4],
             [0, 5], [5, 6], [6, 7], [7, 8],

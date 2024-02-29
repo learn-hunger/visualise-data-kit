@@ -1,4 +1,4 @@
-import { Canvas as BluePrintCanvas } from "./blueprints/canvas";
+import { Canvas as BluePrintCanvas } from "./blueprints/canvas/canvas";
 export declare namespace visualisation {
     const Canvas: typeof BluePrintCanvas;
     /**

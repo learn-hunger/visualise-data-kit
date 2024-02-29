@@ -1,0 +1,1 @@
+{"version":3,"file":"typeGuards.js","sourceRoot":"","sources":["../../../../src/utils/typeGuards/canvas/typeGuards.ts"],"names":[],"mappings":"AAEI,YAAY;AACZ,MAAM,UAAU,SAAS,CAAC,IAAW;IACjC,OAAQ,IAAiB,CAAC,KAAK,KAAK,SAAS,CAAC;AAClD,CAAC;AAED,MAAM,UAAU,QAAQ,CAAC,IAAW;IAChC,OAAQ,IAAgB,CAAC,WAAW,KAAK,SAAS,CAAC;AACvD,CAAC"}
