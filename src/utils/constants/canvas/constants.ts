@@ -1,16 +1,20 @@
-import { ILandmarksStyle, TData } from "../../types/canvas/types";
+import { TData } from "../../types/canvas/types";
 
-    /**
-     * Ensure the below enums values are not same
-     */
-    export enum ETensorflow {
-        POSE = "POSE",
-        HAND = "HAND",
-    }
-    export enum EFaceApi {
-        // POSE="FACEAPI_POSE"
-    }
-export const C_DETECTORS_DATA: TData = {
+/**
+ * Ensure the below enums values are not same
+ */
+export enum ETensorflow {
+    POSE = "POSE",
+    HAND = "HAND",
+}
+export enum EFaceApi {
+    //TODO ADDING FACEAPI
+    // POSE="FACEAPI_POSE"
+}
+export enum ECommon {
+    CUSTOM = "CUSTOM"
+}
+export const C_DETECTORS_DATA: Readonly<TData> = {
     [ETensorflow.POSE]: {
         connections: [
             [8, 6], [6, 5], [5, 4], [4, 0], [0, 1],
@@ -25,7 +29,16 @@ export const C_DETECTORS_DATA: TData = {
         ],
         metric: 1,
         landmarksStyle: { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } },
-        
+        labelStyle: {
+            name: ETensorflow.POSE,
+            position: { type: 'relative', left: 2, top: 2, landmarkIndex: 0, metric: 1 },
+            style: {
+                font: "18px Arial",
+                color: "#FFFFFF",
+                boundingBoxMaxWidth: 100
+            }
+        },
+
     },
     [ETensorflow.HAND]: {
         connections: [
@@ -36,9 +49,30 @@ export const C_DETECTORS_DATA: TData = {
             [0, 17], [17, 18], [18, 19], [19, 20],
         ],
         metric: 1,
-        landmarksStyle: { line: { color: '#00FF00', width: 2, }, point: { color: '#00FF00', width: 2 } }
-
+        landmarksStyle: { line: { color: '#00FF00', width: 2, }, point: { color: '#00FF00', width: 2 } },
+        labelStyle: {
+            name: ETensorflow.HAND,
+            position: { type: 'relative', left: 2, top: 2, landmarkIndex: 2, metric: 1 },
+            style: {
+                font: "18px Arial",
+                color: "#FFFFFF",
+                boundingBoxMaxWidth: 100
+            }
+        },
+    },
+    [ECommon.CUSTOM]: {
+        connections: [],
+        metric: 1,
+        landmarksStyle: { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } },
+        labelStyle: {
+            name: ECommon.CUSTOM,
+            position: { type: 'absolute', x: 10, y: 10 },
+            style: {
+                font: "18px Arial",
+                color: "#FFFFFF",
+                boundingBoxMaxWidth: 100
+            }
+        },
     }
 };
 
-export const C_CUSTOM_DEFAULT_STYLE: ILandmarksStyle = { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } };

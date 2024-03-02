@@ -1,6 +1,6 @@
 {
   "name": "visualisation",
-  "version": "1.0.6",
+  "version": "0.0.1",
   "description": "A package for visulisation ,especially for landmarks",
   "main": "src/index.ts",
   "scripts": {

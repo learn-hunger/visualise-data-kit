@@ -1,4 +1,4 @@
-import { C_DETECTORS_DATA, EFaceApi, ETensorflow } from "../../constants/canvas/constants";
+import { C_DETECTORS_DATA, ECommon, EFaceApi, ETensorflow } from "../../constants/canvas/constants";
 
 export interface ICoordinates {
     x: number,
@@ -6,100 +6,115 @@ export interface ICoordinates {
     z?: number,
 }
 
-    export type TDraw = ICustom | IBuiltIn;
-    export type TDetectors = ETensorflow | EFaceApi;
-    export type TData=Record<TDetectors, IDataDetectors>;
-    export interface ICustom extends Omit<ICommon,'metric'>,Required<Pick<ICommon,'metric'>> {
-        connections: number[][];
-    }
+export type TDraw = ICustom | IBuiltIn;
+export type TDetectors = ETensorflow | EFaceApi | ECommon;
+export type TData = Record<TDetectors, IDataDetectors>;
+export type TCommonData = Required<ICustom>;
 
-    export interface IBuiltIn extends ICommon {
-        model: TDetectors;
-        append?: IAppend;
-    }
+export interface ICommon {
+    dataPoints: ICoordinates[];
+    landmarksStyle?: ILandmarksStyle;
+    metric?: number;
+    labelStyle?: ILabel
 
-    export interface IDataDetectors extends Pick<ICustom,'connections'|'metric'>,Partial<Pick<ICommon,'dataPoints'>>,T2<ILandmarksStyle,ICommon,'landmarksStyle'>{
-        // landmarksStyle:MyType<ILandmarksStyle>
-    }
-    export type MyType<T>={[K in keyof T]-?:Required<T[K]>}
-    export type T2<T,U,S extends keyof U>={[P in S]:MyType<T>}
-    export interface ILabel{
-        name:string,
-        style?:IStyleLabel,
-        position:IPositionAbsolute | IPositionRelative
-    }
-    export interface IDataLabel extends Required<Omit<ILabel,'position'>>{
-        position:Required<IPositionAbsolute> | Required<IPositionRelative>
-    }
-
-    export interface IPositionAbsolute{
-        x:number;
-        y:number;
-        absolute:true;
-    }
-    export interface IPositionRelative{
-        relative:true;
-        landmarkIndex?:number;
-        marginX?:number;
-        marginY?:number;
-        metric?:number
-    }
-
-    export interface IStyleLabel extends IStyleCommon{
-        font?:string,
-        height?:number,
-    }
-    export interface ICommon {
-        dataPoints: ICoordinates[];
-        landmarksStyle?: ILandmarksStyle;
-        metric?: number;
-
-    }
-
-    export interface ILandmarksStyle {
-        line?: IStyleCommon;
-        point?: IStyleCommon;
-    }
-    export interface IStyleCommon {
-        color?: string,
-        width?: number,
-    }
-    export interface IAppend extends Pick<ICustom,'connections'>,Partial<Pick<ICustom,'dataPoints'>>{
-    }
-    export interface IAddConnections extends Pick<IBuiltIn,'model'> ,Pick<ICustom,'connections'>{
-    }
-
-    export interface IRemoveConnections extends Pick<IBuiltIn,'model'>{
-        start:number,
-        count:number,
-
-    }
-
-    export interface IAddDataPoints extends Pick<IBuiltIn,'model' | 'dataPoints'>{
-    }
-
-    export interface IRemoveDataPoints{
-        
-    }
-
-
-
-
-
-
-export interface ITest {
-    abc: string,
 }
+export interface ICustom extends Omit<ICommon, 'metric'>, Required<Pick<ICommon, 'metric'>> {
+    connections: number[][];
+    type: ECommon.CUSTOM
+}
+
+export interface IBuiltIn extends ICommon {
+    type: TDetectors;
+    append?: IAppend;
+}
+
+let x: IBuiltIn = {
+    type: ETensorflow.HAND,
+    dataPoints: []
+}
+
+export interface IDataDetectors extends Required<Pick<ICustom, 'connections' | 'metric'>>, Partial<Pick<ICustom, 'dataPoints'>>, THierarchy3<ICustom, 'landmarksStyle' | 'labelStyle'> {
+}
+type THierarchy2<T> = { [K in keyof T]-?: Required<T[K]> }
+export type THierarchy3<T, U extends keyof T> = { [P in U]-?: THierarchy2<T[P]> }
+export interface ILabel {
+    name: string | null,
+    style?: IStyleLabel,
+    position: IPositionAbsolute | IPositionRelative
+}
+export interface IPositionAbsolute {
+    type: 'absolute';
+    x: number;
+    y: number;
+}
+export interface IPositionRelative {
+    type: 'relative';
+    landmarkIndex?: number;
+    left?: number;
+    top?: number;
+    metric?: number
+}
+
+export interface IStyleCommon {
+    color?: string,
+    width?: number,
+}
+
+export interface IStyleLabel extends Pick<IStyleCommon, 'color'> {
+    font?: string,
+    boundingBoxMaxWidth?: number
+}
+
+export interface ILandmarksStyle {
+    line?: IStyleCommon;
+    point?: IStyleCommon;
+}
+
+export interface IAppend extends Pick<ICustom, 'connections'>, Partial<Pick<ICustom, 'dataPoints'>> {
+}
+export interface IAddConnections extends Pick<IBuiltIn, 'type'>, Pick<ICustom, 'connections'> {
+}
+
+export interface IRemoveConnections extends Pick<IBuiltIn, 'type'> {
+    start: number,
+    count: number,
+    time: number
+}
+
+export interface IAddDataPoints extends Pick<IBuiltIn, 'type' | 'dataPoints'> {
+}
+
+export interface ICommonRemoveState {
+    [key: IRemoveConnections['time']]: IRemoveConnections
+}
+export interface IAddLabel extends ILabel, Pick<IBuiltIn, 'type'> {
+
+}
+
+export interface IRemoveLabel extends Pick<IBuiltIn, 'type'> {
+
+}
+
+
+
+export interface ICommonLabelStyle extends Omit<ILabel, 'position' | 'style'>, THierarchy3<ILabel, 'style'> {
+    position: IPositionAbsolute;
+}
+export interface ICommonDraw extends Omit<Required<IDataDetectors>, 'labelStyle'> {
+    labelStyle: ICommonLabelStyle
+
+}
+
 export abstract class ACanvas {
     protected canvasContext: CanvasRenderingContext2D;
     protected canvasElement: HTMLCanvasElement;
-    protected instanceData:TData;
+    protected instanceData: TData;
     constructor(canvasElement: HTMLCanvasElement) {
         this.canvasElement = canvasElement;
         this.canvasContext = canvasElement.getContext('2d')!;
-        this.instanceData={...C_DETECTORS_DATA};
+        this.instanceData = { ...C_DETECTORS_DATA };
     }
     public abstract draw(data: TDraw): void;
     public abstract clear(): void;
-    public abstract destroy(): void;
+    public abstract reset(): void;
 }

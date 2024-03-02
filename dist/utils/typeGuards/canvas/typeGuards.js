@@ -1,8 +1,9 @@
+import { ECommon } from "../../constants/canvas/constants";
 //TypeGuards
 export function isBuiltIn(data) {
-    return data.model !== undefined;
+    return !(data.type == ECommon.CUSTOM);
 }
 export function isCustom(data) {
-    return data.connections !== undefined;
+    return (data.type == ECommon.CUSTOM);
 }
 //# sourceMappingURL=typeGuards.js.map

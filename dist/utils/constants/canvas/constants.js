@@ -8,8 +8,13 @@ export var ETensorflow;
 })(ETensorflow || (ETensorflow = {}));
 export var EFaceApi;
 (function (EFaceApi) {
+    //TODO ADDING FACEAPI
     // POSE="FACEAPI_POSE"
 })(EFaceApi || (EFaceApi = {}));
+export var ECommon;
+(function (ECommon) {
+    ECommon["CUSTOM"] = "CUSTOM";
+})(ECommon || (ECommon = {}));
 export const C_DETECTORS_DATA = {
     [ETensorflow.POSE]: {
         connections: [
@@ -24,7 +29,16 @@ export const C_DETECTORS_DATA = {
             [29, 31], [11, 23], [23, 25], [24, 23]
         ],
         metric: 1,
-        style: { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } },
+        landmarksStyle: { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } },
+        labelStyle: {
+            name: ETensorflow.POSE,
+            position: { type: 'relative', left: 2, top: 2, landmarkIndex: 0, metric: 1 },
+            style: {
+                font: "18px Arial",
+                color: "#FFFFFF",
+                boundingBoxMaxWidth: 100
+            }
+        },
     },
     [ETensorflow.HAND]: {
         connections: [
@@ -35,8 +49,30 @@ export const C_DETECTORS_DATA = {
             [0, 17], [17, 18], [18, 19], [19, 20],
         ],
         metric: 1,
-        style: { line: { color: '#00FF00', width: 2, }, point: { color: '#00FF00', width: 2 } }
+        landmarksStyle: { line: { color: '#00FF00', width: 2, }, point: { color: '#00FF00', width: 2 } },
+        labelStyle: {
+            name: ETensorflow.HAND,
+            position: { type: 'relative', left: 2, top: 2, landmarkIndex: 2, metric: 1 },
+            style: {
+                font: "18px Arial",
+                color: "#FFFFFF",
+                boundingBoxMaxWidth: 100
+            }
+        },
+    },
+    [ECommon.CUSTOM]: {
+        connections: [],
+        metric: 1,
+        landmarksStyle: { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } },
+        labelStyle: {
+            name: ECommon.CUSTOM,
+            position: { type: 'absolute', x: 10, y: 10 },
+            style: {
+                font: "18px Arial",
+                color: "#FFFFFF",
+                boundingBoxMaxWidth: 100
+            }
+        },
     }
 };
-export const C_CUSTOM_DEFAULT_STYLE = { line: { color: '#0000FF', width: 2, }, point: { color: '#0000FF', width: 2 } };
 //# sourceMappingURL=constants.js.map

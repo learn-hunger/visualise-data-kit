@@ -1,10 +1,10 @@
-import { TDraw, IBuiltIn, ICustom } from "../../types/canvas/types";
+import { ECommon } from "../../constants/canvas/constants";
+import { TDraw } from "../../types/canvas/types";
+//TypeGuards
+export function isBuiltIn(data: TDraw): boolean {
+    return !(data.type == ECommon.CUSTOM);
+}
 
-    //TypeGuards
-    export function isBuiltIn(data: TDraw): data is IBuiltIn {
-        return (data as IBuiltIn).model !== undefined;
-    }
-
-    export function isCustom(data: TDraw): data is ICustom {
-        return (data as ICustom).connections !== undefined;
-    }
+export function isCustom(data: TDraw): boolean {
+    return (data.type == ECommon.CUSTOM);
+}

@@ -1,4 +1,8 @@
-import { C_DETECTORS_DATA } from "../../constants/canvas/constants";
+import { C_DETECTORS_DATA, ETensorflow } from "../../constants/canvas/constants";
+let x = {
+    type: ETensorflow.HAND,
+    dataPoints: []
+};
 export class ACanvas {
     constructor(canvasElement) {
         this.canvasElement = canvasElement;

@@ -1,12 +1,17 @@
-import { ACanvas, IAddConnections, IAddDataPoints, IRemoveConnections, TDraw } from "../../utils/types/canvas/types";
+import { ACanvas, IAddConnections, IAddDataPoints, IAddLabel, IRemoveConnections, IRemoveLabel, TDraw } from "../../utils/types/canvas/types";
 export declare class Canvas extends ACanvas {
+    private _setShowAllLabels;
+    private _connectionsStateManager;
+    private _dataPointsStateManager;
+    set setShowAllLabels(data: boolean);
     draw(data: TDraw): void;
-    addLabel(): void;
     clear(): void;
-    destroy(): void;
-    addConnectors(data: IAddConnections): IRemoveConnections;
+    reset(): void;
+    addConnections(data: IAddConnections): Readonly<IRemoveConnections>;
     removeConnections(data: IRemoveConnections): void;
-    addDataPoints(data: IAddDataPoints): IRemoveConnections;
+    addDataPoints(data: IAddDataPoints): Readonly<IRemoveConnections>;
     removeDataPoints(data: IRemoveConnections): void;
-    private drawCommon;
+    addLabel(data: IAddLabel): Readonly<IRemoveLabel>;
+    removeLabel(data: IRemoveLabel): void;
+    private _drawCommon;
 }
