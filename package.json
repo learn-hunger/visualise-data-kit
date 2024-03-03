@@ -1,6 +1,6 @@
 {
   "name": "@learn-hunger/visualise-data-kit",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A package for visulisation ,especially for landmarks",
   "main": "src/index.ts",
   "scripts": {
