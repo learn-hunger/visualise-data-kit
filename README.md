@@ -221,12 +221,12 @@ visual.clear() //visual is instance of Canvas class
 ## 1. Installation,Importing,Initialisation
 ### 1.1 Installation
 ```
-    npm install visualise-data-kit
+npm i @learn-hunger/visualise-data-kit
 ```
 ### 1.2 Importing
 ```
-import { visualisation } from 'visualise-data-kit/dist';
-import { ETensorflow } from 'visualise-data-kit/dist/utils/constants/canvas/constants';
+import { visualisation } from '@learn-hunger/visualise-data-kit/dist';
+import { ETensorflow } from '@learn-hunger/visualise-data-kit/dist/utils/constants/canvas/constants';
 ```
 ### 1.3 Initialisation
 ```

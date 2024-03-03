@@ -1,4 +1,4 @@
-src/
-publish/
-.git/
-node_modules/
+src
+publish
+node_modules
+example
