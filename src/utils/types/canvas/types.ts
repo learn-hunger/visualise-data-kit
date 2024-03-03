@@ -7,6 +7,7 @@ export interface ICoordinates {
 }
 
 export type TDraw = ICustom | IBuiltIn;
+export type TDetectorsBuiltIn = ETensorflow | EFaceApi;
 export type TDetectors = ETensorflow | EFaceApi | ECommon;
 export type TData = Record<TDetectors, IDataDetectors>;
 export type TCommonData = Required<ICustom>;
@@ -14,26 +15,22 @@ export type TCommonData = Required<ICustom>;
 export interface ICommon {
     dataPoints: ICoordinates[];
     landmarksStyle?: ILandmarksStyle;
-    metric?: number;
+    metricX?: number;
+    metricY?:number;
     labelStyle?: ILabel
 
 }
-export interface ICustom extends Omit<ICommon, 'metric'>, Required<Pick<ICommon, 'metric'>> {
+export interface ICustom extends Omit<ICommon, 'metricX'|'metricY'>, Required<Pick<ICommon, 'metricX'|'metricY'>> {
     connections: number[][];
     type: ECommon.CUSTOM
 }
 
 export interface IBuiltIn extends ICommon {
-    type: TDetectors;
+    type: TDetectorsBuiltIn;
     append?: IAppend;
 }
 
-let x: IBuiltIn = {
-    type: ETensorflow.HAND,
-    dataPoints: []
-}
-
-export interface IDataDetectors extends Required<Pick<ICustom, 'connections' | 'metric'>>, Partial<Pick<ICustom, 'dataPoints'>>, THierarchy3<ICustom, 'landmarksStyle' | 'labelStyle'> {
+export interface IDataDetectors extends Required<Pick<ICustom, 'connections' | 'metricX'|'metricY'>>, Partial<Pick<ICustom, 'dataPoints'>>, THierarchy3<ICustom, 'landmarksStyle' | 'labelStyle'> {
 }
 type THierarchy2<T> = { [K in keyof T]-?: Required<T[K]> }
 export type THierarchy3<T, U extends keyof T> = { [P in U]-?: THierarchy2<T[P]> }
@@ -42,7 +39,7 @@ export interface ILabel {
     style?: IStyleLabel,
     position: IPositionAbsolute | IPositionRelative
 }
-export interface IPositionAbsolute {
+export interface IPositionAbsolute extends Pick<IPositionRelative,'metricX'|'metricY'>{
     type: 'absolute';
     x: number;
     y: number;
@@ -52,12 +49,14 @@ export interface IPositionRelative {
     landmarkIndex?: number;
     left?: number;
     top?: number;
-    metric?: number
+    metricX?: number,
+    metricY?:number
 }
 
 export interface IStyleCommon {
     color?: string,
     width?: number,
+    radius?:number,
 }
 
 export interface IStyleLabel extends Pick<IStyleCommon, 'color'> {
@@ -66,7 +65,7 @@ export interface IStyleLabel extends Pick<IStyleCommon, 'color'> {
 }
 
 export interface ILandmarksStyle {
-    line?: IStyleCommon;
+    line?: Omit<IStyleCommon,'radius'>;
     point?: IStyleCommon;
 }
 
@@ -90,12 +89,25 @@ export interface ICommonRemoveState {
 export interface IAddLabel extends ILabel, Pick<IBuiltIn, 'type'> {
 
 }
+let x:IAddLabel={
+    type: ETensorflow.POSE, // to which model you want to add style
+    name: "My Pose",
+    position: {
+        type:'absolute',
+        x:2,
+        y:2,
+    },
+    //style is optional
+    style:{
+        color:'red',
+        font:"18px Arial",
+        boundingBoxMaxWidth:200
+    }
+}
 
 export interface IRemoveLabel extends Pick<IBuiltIn, 'type'> {
 
 }
-
-
 
 export interface ICommonLabelStyle extends Omit<ILabel, 'position' | 'style'>, THierarchy3<ILabel, 'style'> {
     position: IPositionAbsolute;
@@ -105,16 +117,38 @@ export interface ICommonDraw extends Omit<Required<IDataDetectors>, 'labelStyle'
 
 }
 
+export interface IDrawBoundingBox extends Partial<Pick<ICustom,'landmarksStyle'>> {
+    boundingBox:IObjectDetector | IFaceDetector,
+    labelStyle?:Partial<ILabel>
+}
+export interface IObjectDetector {
+    x: number,
+    y: number,
+    w: number,
+    h: number
+}
+
+export interface IFaceDetector{
+    width:number,
+    height:number,
+    originX:number,
+    originY:number,
+    angle?:number
+}
+
 export abstract class ACanvas {
     protected canvasContext: CanvasRenderingContext2D;
     protected canvasElement: HTMLCanvasElement;
     protected instanceData: TData;
-    constructor(canvasElement: HTMLCanvasElement) {
+    constructor(canvasElement: HTMLCanvasElement,overlay:HTMLVideoElement) {
         this.canvasElement = canvasElement;
         this.canvasContext = canvasElement.getContext('2d')!;
+        this.canvasElement.width = overlay.videoWidth;
+        this.canvasElement.height = overlay.videoHeight;
         this.instanceData = { ...C_DETECTORS_DATA };
     }
     public abstract draw(data: TDraw): void;
+    public abstract drawBoundingBox(data:IDrawBoundingBox):void;
     public abstract clear(): void;
     public abstract reset(): void;
 }

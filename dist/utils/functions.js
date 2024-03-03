@@ -2,9 +2,13 @@ export function isObject(item) {
     return (item && typeof item === 'object' && !Array.isArray(item));
 }
 /**
- * Deep merge two objects.
- * @param target
- * @param ...sources
+ * Deeply merges multiple objects into a single object.
+ * @date 3/2/2024 - 11:12:38 PM
+ *
+ * @export
+ * @param {*} target - The target object to merge into.
+ * @param {...*} sources - The source objects to merge from.
+ * @returns {*} - The merged object.
  */
 export function mergeDeep(target, ...sources) {
     if (!sources.length)

@@ -12,7 +12,8 @@
     },
     "exclude": [
       "landmarks-visualization.component.ts",
-      "dist"
+      "dist",
+      "src/utils/constants/canvas/connections.ts"
     ]
   }
   

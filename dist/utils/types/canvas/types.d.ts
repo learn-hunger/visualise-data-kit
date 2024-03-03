@@ -5,24 +5,26 @@ export interface ICoordinates {
     z?: number;
 }
 export type TDraw = ICustom | IBuiltIn;
+export type TDetectorsBuiltIn = ETensorflow | EFaceApi;
 export type TDetectors = ETensorflow | EFaceApi | ECommon;
 export type TData = Record<TDetectors, IDataDetectors>;
 export type TCommonData = Required<ICustom>;
 export interface ICommon {
     dataPoints: ICoordinates[];
     landmarksStyle?: ILandmarksStyle;
-    metric?: number;
+    metricX?: number;
+    metricY?: number;
     labelStyle?: ILabel;
 }
-export interface ICustom extends Omit<ICommon, 'metric'>, Required<Pick<ICommon, 'metric'>> {
+export interface ICustom extends Omit<ICommon, 'metricX' | 'metricY'>, Required<Pick<ICommon, 'metricX' | 'metricY'>> {
     connections: number[][];
     type: ECommon.CUSTOM;
 }
 export interface IBuiltIn extends ICommon {
-    type: TDetectors;
+    type: TDetectorsBuiltIn;
     append?: IAppend;
 }
-export interface IDataDetectors extends Required<Pick<ICustom, 'connections' | 'metric'>>, Partial<Pick<ICustom, 'dataPoints'>>, THierarchy3<ICustom, 'landmarksStyle' | 'labelStyle'> {
+export interface IDataDetectors extends Required<Pick<ICustom, 'connections' | 'metricX' | 'metricY'>>, Partial<Pick<ICustom, 'dataPoints'>>, THierarchy3<ICustom, 'landmarksStyle' | 'labelStyle'> {
 }
 type THierarchy2<T> = {
     [K in keyof T]-?: Required<T[K]>;
@@ -35,7 +37,7 @@ export interface ILabel {
     style?: IStyleLabel;
     position: IPositionAbsolute | IPositionRelative;
 }
-export interface IPositionAbsolute {
+export interface IPositionAbsolute extends Pick<IPositionRelative, 'metricX' | 'metricY'> {
     type: 'absolute';
     x: number;
     y: number;
@@ -45,18 +47,20 @@ export interface IPositionRelative {
     landmarkIndex?: number;
     left?: number;
     top?: number;
-    metric?: number;
+    metricX?: number;
+    metricY?: number;
 }
 export interface IStyleCommon {
     color?: string;
     width?: number;
+    radius?: number;
 }
 export interface IStyleLabel extends Pick<IStyleCommon, 'color'> {
     font?: string;
     boundingBoxMaxWidth?: number;
 }
 export interface ILandmarksStyle {
-    line?: IStyleCommon;
+    line?: Omit<IStyleCommon, 'radius'>;
     point?: IStyleCommon;
 }
 export interface IAppend extends Pick<ICustom, 'connections'>, Partial<Pick<ICustom, 'dataPoints'>> {
@@ -83,12 +87,30 @@ export interface ICommonLabelStyle extends Omit<ILabel, 'position' | 'style'>, T
 export interface ICommonDraw extends Omit<Required<IDataDetectors>, 'labelStyle'> {
     labelStyle: ICommonLabelStyle;
 }
+export interface IDrawBoundingBox extends Partial<Pick<ICustom, 'landmarksStyle'>> {
+    boundingBox: IObjectDetector | IFaceDetector;
+    labelStyle?: Partial<ILabel>;
+}
+export interface IObjectDetector {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
+export interface IFaceDetector {
+    width: number;
+    height: number;
+    originX: number;
+    originY: number;
+    angle?: number;
+}
 export declare abstract class ACanvas {
     protected canvasContext: CanvasRenderingContext2D;
     protected canvasElement: HTMLCanvasElement;
     protected instanceData: TData;
-    constructor(canvasElement: HTMLCanvasElement);
+    constructor(canvasElement: HTMLCanvasElement, overlay: HTMLVideoElement);
     abstract draw(data: TDraw): void;
+    abstract drawBoundingBox(data: IDrawBoundingBox): void;
     abstract clear(): void;
     abstract reset(): void;
 }
