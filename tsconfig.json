@@ -11,8 +11,9 @@
       // "declarationDir": "dist/types"
     },
     "exclude": [
-      "landmarks-visualization.component.ts",
-      "dist"
+      "dist",
+      "src/utils/constants/canvas/connections.ts",
+      "example/index.ts"
     ]
   }
   

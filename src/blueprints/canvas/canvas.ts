@@ -1,7 +1,8 @@
-import { C_DETECTORS_DATA, ECommon } from "../../utils/constants/canvas/constants";
+import { BOUNDING_BOX_CONNECTIONS } from "../../utils/constants/canvas/connections";
+import { C_DETECTORS_DATA, ECommon, ETensorflow } from "../../utils/constants/canvas/constants";
 import { mergeDeep } from "../../utils/functions";
 import { isBuiltIn, isCustom } from "../../utils/typeGuards/canvas/typeGuards";
-import { ACanvas, IAddConnections, IAddDataPoints, IAddLabel, IBuiltIn, ICommonDraw, ICommonRemoveState, ICustom, IDataDetectors, IRemoveConnections, IRemoveLabel, TDraw } from "../../utils/types/canvas/types";
+import { ACanvas, IAddConnections, IAddDataPoints, IAddLabel, IBuiltIn, ICommonDraw, ICommonRemoveState, ICustom, IDataDetectors, IDrawBoundingBox, IFaceDetector, IObjectDetector, IRemoveConnections, IRemoveLabel, TDraw } from "../../utils/types/canvas/types";
 
 /**
  * Canvas class representing a canvas element for drawing custom or built-in data for visualizing landmarks.
@@ -38,7 +39,9 @@ export class Canvas extends ACanvas {
                     dataPoints: [...(this.instanceData[ECommon.CUSTOM].dataPoints ?? []), ...data.dataPoints],
                     landmarksStyle: mergeDeep({}, this.instanceData[ECommon.CUSTOM].landmarksStyle, data.landmarksStyle),
                     labelStyle: mergeDeep({}, this.instanceData[ECommon.CUSTOM].labelStyle, data.labelStyle),
-                    metric: data.metric ? data.metric : this.instanceData[ECommon.CUSTOM].metric,
+                    metricX: data.metricX ? data.metricX : this.instanceData[ECommon.CUSTOM].metricX,
+                    metricY: data.metricY ? data.metricY : this.instanceData[ECommon.CUSTOM].metricY,
+
                 };
                 this._drawCommon(preprocessedData);
                 break;
@@ -55,12 +58,12 @@ export class Canvas extends ACanvas {
                                 ?
                                 labelStyle.position.x
                                 :
-                                (data.dataPoints[labelStyle.position.landmarkIndex].x * overlayWidth / labelStyle.position.metric) + labelStyle.position.left,
+                                (data.dataPoints[labelStyle.position.landmarkIndex].x * overlayWidth / labelStyle.position.metricX) + labelStyle.position.left,
                             y: labelStyle.position.type == 'absolute'
                                 ?
                                 labelStyle.position.y
                                 :
-                                (data.dataPoints[labelStyle.position.landmarkIndex].y * overlayHeight / labelStyle.position.metric) + labelStyle.position.top,
+                                (data.dataPoints[labelStyle.position.landmarkIndex].y * overlayHeight / labelStyle.position.metricY) + labelStyle.position.top,
 
                             type: 'absolute'
                         },
@@ -71,11 +74,65 @@ export class Canvas extends ACanvas {
                     dataPoints: [...(this.instanceData[data.type].dataPoints ?? []), ...data.dataPoints, ...((data as IBuiltIn).append?.dataPoints ?? [])],
                     landmarksStyle: mergeDeep({}, this.instanceData[data.type].landmarksStyle, data.landmarksStyle),
                     labelStyle: preProcessedLabelStyle.labelStyle,
-                    metric: data.metric ? data.metric : this.instanceData[data.type].metric,
+                    metricX: data.metricX ? data.metricX : this.instanceData[data.type].metricX,
+                    metricY: data.metricY ? data.metricY : this.instanceData[data.type].metricY,
+
                 };
                 this._drawCommon(preprocessedData);
                 break;
         }
+    }
+
+    public drawBoundingBox(data:IDrawBoundingBox):void{
+        const overlayWidth=this.canvasElement.width;
+        const overlayHeight=this.canvasElement.height;
+        const faceDetector=data.boundingBox as IFaceDetector;
+        const objectDetector=data.boundingBox as IObjectDetector;
+        if (faceDetector.width){
+            objectDetector.x=faceDetector.originX;
+            objectDetector.y=faceDetector.originY;
+            objectDetector.h=faceDetector.width;
+            objectDetector.w=faceDetector.height;
+        }
+        const preprocessedData:ICustom={
+            connections: BOUNDING_BOX_CONNECTIONS,
+            type: ECommon.CUSTOM,
+            dataPoints: [
+                {
+                    x:objectDetector.x,
+                    y:objectDetector.y,
+                },
+                {
+                    x:objectDetector.x+objectDetector.w,
+                    y:objectDetector.y,
+                },
+                {
+                    x:objectDetector.x+objectDetector.w,
+                    y:objectDetector.y+objectDetector.h,
+                },
+                {
+                    x:objectDetector.x,
+                    y:objectDetector.y+objectDetector.h,
+                },
+               
+            ],
+            metricX: overlayWidth,
+            metricY:overlayHeight,
+            labelStyle:{
+                name:data.labelStyle?.name ?? ECommon.CUSTOM,
+                position:mergeDeep({
+                    type:data.labelStyle?.position?.type??'absolute',
+                    x:objectDetector.x,
+                    y:objectDetector.y,
+                    metricX:overlayWidth,
+                    metricY:overlayHeight,
+                },data.labelStyle?.position),
+                style:data.labelStyle?.style ?? this.instanceData[ECommon.CUSTOM].labelStyle.style
+            },
+            landmarksStyle: mergeDeep({}, this.instanceData[ECommon.CUSTOM].landmarksStyle, data.landmarksStyle),
+
+        }
+        this.draw(preprocessedData);
     }
 
     
@@ -203,17 +260,17 @@ export class Canvas extends ACanvas {
      * @param {ICommonDraw} data - Common data to be drawn on the canvas.     * @date 3/2/2024 - 10:51:01 PM
      */
     private _drawCommon(data: ICommonDraw) {
-        const overlayWidth = this.canvasElement.width / data.metric;
-        const overlayHeight = this.canvasElement.height / data.metric;
-        this.canvasContext.strokeStyle = data.landmarksStyle!.point!.color!;
-        this.canvasContext.lineWidth = data.landmarksStyle!.point!.width!;
+        const overlayWidth = this.canvasElement.width / data.metricX;
+        const overlayHeight = this.canvasElement.height / data.metricY;
+        this.canvasContext.strokeStyle = data.landmarksStyle.point.color ?? "red";
+        this.canvasContext.lineWidth = data.landmarksStyle.point.width ?? "2";
         for (const handLandmark of data.dataPoints) {
             this.canvasContext.beginPath();
-            this.canvasContext.arc(handLandmark.x * overlayWidth, handLandmark.y * overlayHeight, 5, 0, 2 * Math.PI);
+            this.canvasContext.arc(handLandmark.x * overlayWidth, handLandmark.y * overlayHeight, data.landmarksStyle.point.radius, 0, 2 * Math.PI);
             this.canvasContext.stroke();
         }
-        this.canvasContext.strokeStyle = data.landmarksStyle!.line!.color!;
-        this.canvasContext.lineWidth = data.landmarksStyle!.line!.width!;
+        this.canvasContext.strokeStyle = data.landmarksStyle.line.color ?? "darkcyan";
+        this.canvasContext.lineWidth = data.landmarksStyle.line.width ?? "2";
         for (const connection of data.connections) {
             const [startIdx, endIdx] = connection;
             const startLandmark = data.dataPoints[startIdx];
@@ -224,7 +281,7 @@ export class Canvas extends ACanvas {
             this.canvasContext.stroke();
         }
         if (this._setShowAllLabels && data.labelStyle.name) {
-            this.canvasContext.fillStyle = data.labelStyle.style.color;
+            this.canvasContext.fillStyle = data.labelStyle.style.color ?? "red";
             this.canvasContext.font = data.labelStyle.style.font;;
             this.canvasContext.fillText(
                 data.labelStyle?.name,
