@@ -35,7 +35,8 @@ jobs:
                 # latest_version=$(npm view "${parts[1]}" version) 
                 package_name=$(node -e "console.log(require('./package.json').name)")
                 latest_version=$(npm view "${package_name}" version) 
-     
+                echo "$package_name"
+                echo "$latest_version"
                 npm version "$latest_version" --no-git-tag-version
                 npm version patch --no-git-tag-version
               working-directory: ${{env.main_source_path}}
