@@ -46,4 +46,4 @@ jobs:
               run: npm publish --access public
               working-directory: ${{env.main_source_path}}
               env:
-                  NODE_AUTH_TOKEN: ${{secrets.NPM_TEST}}
+                  NODE_AUTH_TOKEN: ${{secrets.LEARN_HUNGER}}
