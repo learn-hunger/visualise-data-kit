@@ -13,7 +13,7 @@
     "exclude": [
       "dist",
       "src/utils/constants/canvas/connections.ts",
-      "example/index.ts"
+      "example/gist.ts"
     ]
   }
   

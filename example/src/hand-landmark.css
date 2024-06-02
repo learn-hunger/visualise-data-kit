@@ -1,0 +1,17 @@
+.webcam {
+    position: absolute;
+    right: 0;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid red;
+    width:500px;
+    height:499px;
+  }
+  
+  #container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    outline: none;
+  }
+  
