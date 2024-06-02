@@ -234,6 +234,12 @@ const canvasElement = document.getElementById("output_canvas") as HTMLCanvasElem
 const videoElement = document.getElementById("video") as HTMLVideoElement;
 const visual=new visualisation.Canvas(canvasElement,videoElement);
 ```
+### 1.4 Run Example
+```
+//move to the example directory and run following commands
+npm i
+npm run dev
+```
 ## 2. Built-in-drawing & Custom-drawing
 ### 2.1 Bounding Box
 #### 2.1.1 Face Detector
