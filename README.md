@@ -236,9 +236,9 @@ const visual=new visualisation.Canvas(canvasElement,videoElement);
 ```
 ### 1.4 use workers
 * one can mention the canvasWorkerPath with cdns
-  https://cdn.jsdelivr.net/npm/@learn-hunger/visualise-data-kit@0.0.4/src/assets/canvas-worker.js
+  https://cdn.jsdelivr.net/npm/@learn-hunger/visualise-data-kit@latest/src/assets/canvas-worker.js
 * if you download canvas-worker.js file and place it in local , ensure you also download
-  <a href="https://cdn.jsdelivr.net/npm/@learn-hunger/visualise-data-kit@0.0.4/src/assets/canvas-shared-drawing.js">canvas-shared-drawing.js</a> and place both files in same directory
+  <a href="https://cdn.jsdelivr.net/npm/@learn-hunger/visualise-data-kit@latest/src/assets/canvas-shared-drawing.js">canvas-shared-drawing.js</a> and place both files in same directory
    
 ```
 //add canvas-worker.js into your public directory and assign it immediately after initialisation of visual
