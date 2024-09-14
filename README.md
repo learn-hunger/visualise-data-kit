@@ -234,11 +234,33 @@ const canvasElement = document.getElementById("output_canvas") as HTMLCanvasElem
 const videoElement = document.getElementById("video") as HTMLVideoElement;
 const visual=new visualisation.Canvas(canvasElement,videoElement);
 ```
-### 1.4 Run Example
+### 1.4 use workers
+* one can mention the canvasWorkerPath with cdns
+  https://cdn.jsdelivr.net/npm/@learn-hunger/visualise-data-kit@0.0.4/src/assets/canvas-worker.js
+* if you download canvas-worker.js file and place it in local , ensure you also download
+  <a href="https://cdn.jsdelivr.net/npm/@learn-hunger/visualise-data-kit@0.0.4/src/assets/canvas-shared-drawing.js">canvas-shared-drawing.js</a> and place both files in same directory
+   
+```
+//add canvas-worker.js into your public directory and assign it immediately after initialisation of visual
+    visual.useWorker={canvasWorkerPath:'canvas-worker.js'}
+```
+* ensure that after page destory or onbeforeload or onunload , you call the destroy to terminate the worker and free the space
+```
+  visual.destroy();
+```
+### 1.5 Run Example
 ```
 //move to the example directory and run following commands
 npm i
 npm run dev
+```
+### 1.6 Laterally Inverted landmarks
+* it is used when you make the video laterally inverted and correspondingly want to draw landmarks
+```
+import { invertLandmarks } from "@learn-hunger/visualise-data-kit/src/utils/functions";
+//here landmarks is of type NormalisedLandmarks[] which were generated from mediapipe taskvision
+landmarksInverted=invertLandmarks(landmarks,'x')
+visualCanvas.draw({type:ETensorflow.HAND,dataPoints:landmarks})
 ```
 ## 2. Built-in-drawing & Custom-drawing
 ### 2.1 Bounding Box

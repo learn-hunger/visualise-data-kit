@@ -136,13 +136,35 @@ export interface IFaceDetector{
     angle?:number
 }
 
+/**
+ * ensure that both canvas-worker.js 
+ * and canvas-shared-worker.js both exists in same directory
+ * preferably in public directory access without any paths
+ * 
+ */
+export interface IWorkers {
+    canvasWorkerPath: string;
+}
+
+/**
+ * copied from task vision mediapipe
+ */
+export declare interface INormalizedLandmark {
+    /** The x coordinates of the normalized landmark. */
+    x: number;
+    /** The y coordinates of the normalized landmark. */
+    y: number;
+    /** The z coordinates of the normalized landmark. */
+    z: number;
+    /** The likelihood of the landmark being visible within the image. */
+    visibility?: number;
+  }
+
 export abstract class ACanvas {
-    protected canvasContext: CanvasRenderingContext2D;
     protected canvasElement: HTMLCanvasElement;
     protected instanceData: TData;
     constructor(canvasElement: HTMLCanvasElement,overlay:HTMLVideoElement) {
         this.canvasElement = canvasElement;
-        this.canvasContext = canvasElement.getContext('2d')!;
         this.canvasElement.width = overlay.videoWidth;
         this.canvasElement.height = overlay.videoHeight;
         this.instanceData = { ...C_DETECTORS_DATA };

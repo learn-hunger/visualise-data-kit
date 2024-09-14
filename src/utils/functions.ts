@@ -1,3 +1,5 @@
+import { ICoordinates, INormalizedLandmark } from "./types/canvas/types";
+
 export function isObject(item:any) {
     return (item && typeof item === 'object' && !Array.isArray(item));
   }
@@ -27,4 +29,19 @@ export function isObject(item:any) {
     }
   
     return mergeDeep(target, ...sources);
+  }
+
+  /**
+   * used when you make the video laterally inverted and correspondingly want to draw landmarks
+   * @param landmarks 
+   * @param invertAxis 
+   * @returns 
+   */
+  export function invertLandmarks(landmarks:INormalizedLandmark[],invertAxis:'x' | 'y'):INormalizedLandmark[]{
+    landmarks=JSON.parse(JSON.stringify(landmarks))
+    landmarks=landmarks.map((i)=>{
+      i[invertAxis]=1-i[invertAxis];
+      return i
+    })
+    return landmarks;
   }

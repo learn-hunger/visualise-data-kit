@@ -1,8 +1,9 @@
+import { drawLandmarks } from "../../shared/canvas-shared-drawing";
 import { BOUNDING_BOX_CONNECTIONS } from "../../utils/constants/canvas/connections";
 import { C_DETECTORS_DATA, ECommon, ETensorflow } from "../../utils/constants/canvas/constants";
 import { mergeDeep } from "../../utils/functions";
 import { isBuiltIn, isCustom } from "../../utils/typeGuards/canvas/typeGuards";
-import { ACanvas, IAddConnections, IAddDataPoints, IAddLabel, IBuiltIn, ICommonDraw, ICommonRemoveState, ICustom, IDataDetectors, IDrawBoundingBox, IFaceDetector, IObjectDetector, IRemoveConnections, IRemoveLabel, TDraw } from "../../utils/types/canvas/types";
+import { ACanvas, IAddConnections, IAddDataPoints, IAddLabel, IBuiltIn, ICommonDraw, ICommonRemoveState, ICustom, IDataDetectors, IDrawBoundingBox, IFaceDetector, IObjectDetector, IRemoveConnections, IRemoveLabel, IWorkers, TDraw } from "../../utils/types/canvas/types";
 
 /**
  * Canvas class representing a canvas element for drawing custom or built-in data for visualizing landmarks.
@@ -17,13 +18,34 @@ export class Canvas extends ACanvas {
     private _setShowAllLabels = true;
     private _connectionsStateManager: ICommonRemoveState = {};
     private _dataPointsStateManager: ICommonRemoveState = {};
-
+    private _useWorker!: IWorkers;
+    private workerInstance!: Worker;
+    constructor(canvasElement: HTMLCanvasElement, videoElement: HTMLVideoElement) {
+        super(canvasElement, videoElement);
+    }
     /**
      * Setter method for controlling whether to display all labels or not.
      * @param {boolean} data - Flag indicating whether to display all labels.
      */
     set setShowAllLabels(data: boolean) {
         this._setShowAllLabels = data
+    }
+
+
+    /**
+     * attach worker with cdn or script downloaded and 
+     * placed at public folder (usually)
+     *
+     * @public
+     * @type {IWorkers}
+     */
+    public set useWorker(toggle: IWorkers) {
+        this._useWorker = toggle;
+        this._initWorkerForDrawing();
+
+    }
+    public get useWorker() {
+        return this._useWorker
     }
 
     /**
@@ -83,51 +105,51 @@ export class Canvas extends ACanvas {
         }
     }
 
-    public drawBoundingBox(data:IDrawBoundingBox):void{
-        const overlayWidth=this.canvasElement.width;
-        const overlayHeight=this.canvasElement.height;
-        const faceDetector=data.boundingBox as IFaceDetector;
-        const objectDetector=data.boundingBox as IObjectDetector;
-        if (faceDetector.width){
-            objectDetector.x=faceDetector.originX;
-            objectDetector.y=faceDetector.originY;
-            objectDetector.h=faceDetector.width;
-            objectDetector.w=faceDetector.height;
+    public drawBoundingBox(data: IDrawBoundingBox): void {
+        const overlayWidth = this.canvasElement.width;
+        const overlayHeight = this.canvasElement.height;
+        const faceDetector = data.boundingBox as IFaceDetector;
+        const objectDetector = data.boundingBox as IObjectDetector;
+        if (faceDetector.width) {
+            objectDetector.x = faceDetector.originX;
+            objectDetector.y = faceDetector.originY;
+            objectDetector.h = faceDetector.width;
+            objectDetector.w = faceDetector.height;
         }
-        const preprocessedData:ICustom={
+        const preprocessedData: ICustom = {
             connections: BOUNDING_BOX_CONNECTIONS,
             type: ECommon.CUSTOM,
             dataPoints: [
                 {
-                    x:objectDetector.x,
-                    y:objectDetector.y,
+                    x: objectDetector.x,
+                    y: objectDetector.y,
                 },
                 {
-                    x:objectDetector.x+objectDetector.w,
-                    y:objectDetector.y,
+                    x: objectDetector.x + objectDetector.w,
+                    y: objectDetector.y,
                 },
                 {
-                    x:objectDetector.x+objectDetector.w,
-                    y:objectDetector.y+objectDetector.h,
+                    x: objectDetector.x + objectDetector.w,
+                    y: objectDetector.y + objectDetector.h,
                 },
                 {
-                    x:objectDetector.x,
-                    y:objectDetector.y+objectDetector.h,
+                    x: objectDetector.x,
+                    y: objectDetector.y + objectDetector.h,
                 },
-               
+
             ],
             metricX: overlayWidth,
-            metricY:overlayHeight,
-            labelStyle:{
-                name:data.labelStyle?.name ?? ECommon.CUSTOM,
-                position:mergeDeep({
-                    type:data.labelStyle?.position?.type??'absolute',
-                    x:objectDetector.x,
-                    y:objectDetector.y,
-                    metricX:overlayWidth,
-                    metricY:overlayHeight,
-                },data.labelStyle?.position),
-                style:data.labelStyle?.style ?? this.instanceData[ECommon.CUSTOM].labelStyle.style
+            metricY: overlayHeight,
+            labelStyle: {
+                name: data.labelStyle?.name ?? ECommon.CUSTOM,
+                position: mergeDeep({
+                    type: data.labelStyle?.position?.type ?? 'absolute',
+                    x: objectDetector.x,
+                    y: objectDetector.y,
+                    metricX: overlayWidth,
+                    metricY: overlayHeight,
+                }, data.labelStyle?.position),
+                style: data.labelStyle?.style ?? this.instanceData[ECommon.CUSTOM].labelStyle.style
             },
             landmarksStyle: mergeDeep({}, this.instanceData[ECommon.CUSTOM].landmarksStyle, data.landmarksStyle),
 
@@ -135,7 +157,7 @@ export class Canvas extends ACanvas {
         this.draw(preprocessedData);
     }
 
-    
+
     /**
 =     * Clears the canvas by removing all drawings.
      * @date 3/2/2024 - 10:49:42 PM
@@ -143,10 +165,16 @@ export class Canvas extends ACanvas {
      * @public
      */
     public clear() {
-        this.canvasElement.getContext('2d')?.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height)
+        if (this._useWorker) {
+            // Clear the canvas in the worker
+            this.workerInstance.postMessage({ action: 'clear' });
+        } else {
+            // Clear the canvas on the main thread
+            this.canvasElement.getContext('2d')?.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+        }
     }
 
-    
+
     /**
      * Resets the canvas to its initial state, clearing all data and settings.
      * @date 3/2/2024 - 10:49:52 PM
@@ -159,7 +187,7 @@ export class Canvas extends ACanvas {
         this._dataPointsStateManager = {};
         this._setShowAllLabels = true;
     }
-    
+
 
     /**
      * Adds connections to the canvas data and returns the state manager for removal.
@@ -175,7 +203,7 @@ export class Canvas extends ACanvas {
         this.instanceData[data.type].connections.push(...data.connections);
         return this._connectionsStateManager[now];
     }
-  
+
 
     /**
      * Removes connections from the canvas data based on the provided state manager.
@@ -194,7 +222,7 @@ export class Canvas extends ACanvas {
         }
     }
 
-    
+
     /**
      * Adds data points to the canvas data and returns the state manager for removal.
      * @date 3/2/2024 - 10:50:39 PM
@@ -209,7 +237,7 @@ export class Canvas extends ACanvas {
         return this._dataPointsStateManager[now];
     }
 
-    
+
     /**
      * Removes data points from the canvas data based on the provided state manager.
      * @date 3/2/2024 - 10:50:30 PM
@@ -226,7 +254,7 @@ export class Canvas extends ACanvas {
         }
     }
 
-    
+
     /**
      * Adds a label to the canvas data.
      * @date 3/2/2024 - 10:50:49 PM
@@ -240,7 +268,7 @@ export class Canvas extends ACanvas {
         return { type: data.type }
     }
 
-    
+
     /**
      * Removes a label from the canvas data.
      * @date 3/2/2024 - 10:50:55 PM
@@ -252,7 +280,7 @@ export class Canvas extends ACanvas {
         this.instanceData[data.type].labelStyle.name = null;
     }
 
-    
+
     /**
      * Private method to draw common elements like data points, connections, and labels on the canvas.
      *
@@ -260,35 +288,61 @@ export class Canvas extends ACanvas {
      * @param {ICommonDraw} data - Common data to be drawn on the canvas.     * @date 3/2/2024 - 10:51:01 PM
      */
     private _drawCommon(data: ICommonDraw) {
-        const overlayWidth = this.canvasElement.width / data.metricX;
-        const overlayHeight = this.canvasElement.height / data.metricY;
-        this.canvasContext.strokeStyle = data.landmarksStyle.point.color ?? "red";
-        this.canvasContext.lineWidth = data.landmarksStyle.point.width ?? "2";
-        for (const handLandmark of data.dataPoints) {
-            this.canvasContext.beginPath();
-            this.canvasContext.arc(handLandmark.x * overlayWidth, handLandmark.y * overlayHeight, data.landmarksStyle.point.radius, 0, 2 * Math.PI);
-            this.canvasContext.stroke();
-        }
-        this.canvasContext.strokeStyle = data.landmarksStyle.line.color ?? "darkcyan";
-        this.canvasContext.lineWidth = data.landmarksStyle.line.width ?? "2";
-        for (const connection of data.connections) {
-            const [startIdx, endIdx] = connection;
-            const startLandmark = data.dataPoints[startIdx];
-            const endLandmark = data.dataPoints[endIdx];
-            this.canvasContext.beginPath();
-            this.canvasContext.moveTo(startLandmark.x * overlayWidth, startLandmark.y * overlayHeight);
-            this.canvasContext.lineTo(endLandmark.x * overlayWidth, endLandmark.y * overlayHeight);
-            this.canvasContext.stroke();
-        }
-        if (this._setShowAllLabels && data.labelStyle.name) {
-            this.canvasContext.fillStyle = data.labelStyle.style.color ?? "red";
-            this.canvasContext.font = data.labelStyle.style.font;;
-            this.canvasContext.fillText(
-                data.labelStyle?.name,
-                data.labelStyle.position.x,
-                data.labelStyle.position.y,
-                data.labelStyle.style.boundingBoxMaxWidth
-            );
+        if (this._useWorker) {
+            this._drawInWorker(data);  // Delegate drawing to the worker
+        } else {
+            // Draw on the main thread directly if workers are not used
+            const canvasWidth = this.canvasElement.width;
+            const canvasHeight = this.canvasElement.height;
+            drawLandmarks(this.canvasElement.getContext('2d')!, data, canvasWidth, canvasHeight,this._setShowAllLabels);
         }
     }
+
+    /**
+     * initialise the worker
+     */
+    private _initWorkerForDrawing() {
+        // Only create the worker if it doesn't already exist
+        if (!this.workerInstance) {
+            // Make sure the OffscreenCanvas is transferred before any context is created
+            const offscreenCanvas = this.canvasElement.transferControlToOffscreen();
+
+            // Initialize the worker
+            this.workerInstance = new Worker(this.useWorker.canvasWorkerPath);
+
+            // Post the offscreen canvas to the worker
+            this.workerInstance.postMessage({ canvas: offscreenCanvas }, [offscreenCanvas]);
+        }
+    }
+
+    /**
+     * draw with worker
+     * @param data 
+     */
+    private _drawInWorker(data: ICommonDraw) {
+        const showLabels=this._setShowAllLabels;
+        // Send drawing data to the worker
+        this.workerInstance.postMessage({
+            dataPoints: data.dataPoints,
+            metricX: data.metricX,
+            metricY: data.metricY,
+            landmarksStyle: data.landmarksStyle,
+            connections: data.connections,
+            labelStyle: data.labelStyle,
+            showLabels:showLabels
+        });
+    }
+
+    /**
+     * terminate the worker , use it when you had used worker
+     */
+    public destroy() {
+        if (this.useWorker) {
+            this.workerInstance.terminate();
+        }
+    }
+
+
+
+
 }
